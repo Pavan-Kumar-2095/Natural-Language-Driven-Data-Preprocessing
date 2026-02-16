@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Pandas Data Processor</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Roboto', sans-serif; margin:0; background:#f4f6f9; color:#333; }
+.container { max-width:1200px; margin:30px auto; padding:20px; background:white; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+h2 { color:#2c3e50; }
+input[type="file"], textarea, button { width:100%; padding:10px; margin:5px 0; border-radius:6px; border:1px solid #ccc; font-size:14px; }
+button { background:#3498db; color:white; border:none; cursor:pointer; transition:0.3s;}
+button:hover { background:#2980b9; }
+.alert { padding:12px; margin:10px 0; border-radius:6px; display:none;}
+.alert.success { background:#2ecc71; color:white;}
+.alert.error { background:#e74c3c; color:white;}
+.tabs { display:flex; margin-top:20px; border-bottom:2px solid #3498db;}
+.tab { padding:10px 20px; cursor:pointer; background:#ddd; border-radius:6px 6px 0 0; margin-right:5px; font-weight:500;}
+.tab.active { background:#3498db; color:white;}
+.tab-content { display:none; padding:15px; background:#fff; border-radius:0 0 6px 6px; margin-top:-2px; box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.tab-content.active { display:block; }
+.table-wrapper { overflow-x:auto; max-height:400px; }
+table { border-collapse:collapse; width:100%; min-width:600px;}
+th, td { border:1px solid #ccc; padding:8px 10px; text-align:left; font-size:13px;}
+th { background:#3498db; color:white; position:sticky; top:0; z-index:2; }
+.pagination { margin-top:10px; display:flex; justify-content:space-between; align-items:center; }
+pre { background:#f4f6f9; padding:10px; border-radius:6px; overflow-x:auto; max-height:300px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>AI-Pandas Data Processor</h2>
+
+<input type="file" id="fileInput">
+<button onclick="uploadFile()">Upload CSV</button>
+<button id="downloadBtn" style="display:none;" onclick="downloadFile()">Download CSV</button>
+<div class="alert" id="message"></div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab('tableTab')">Data Table</div>
+<div class="tab" onclick="showTab('infoTab')">Data Info</div>
+</div>
+
+<div id="tableTab" class="tab-content active">
+<div class="table-wrapper" id="tableContainer"></div>
+
+<div class="pagination">
+<div>
+<button onclick="prevPage()">Previous</button>
+<button onclick="nextPage()">Next</button>
+</div>
+<span id="pageInfo"></span>
+</div>
+</div>
+
+<div id="infoTab" class="tab-content">
+<h3>Data Info</h3>
+<div class="table-wrapper">
+<pre id="infoContent"></pre>
+</div>
+</div>
+
+<hr>
+
+<h2>Apply Operation</h2>
+<textarea id="textInput" placeholder="Enter instruction like 'remove duplicates', 'normalize salary', etc."></textarea>
+<button onclick="processData()">Apply Operation</button>
+
+</div>
+
+<script>
+
+let currentFilePath = "";
+let currentPage = 1;
+let totalPages = 1;
+const rowsPerPage = 5;
+
+function showMessage(text, type="success"){
+    const msgDiv = document.getElementById("message");
+    msgDiv.className = `alert ${type}`;
+    msgDiv.innerText = text;
+    msgDiv.style.display="block";
+    setTimeout(()=>{ msgDiv.style.display="none"; },4000);
+}
+
+function showTab(tabId){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    if(tabId==="infoTab") updateInfo();
+}
+
+function renderTable(data, total_rows){
+    if(!data || data.length===0){
+        document.getElementById("tableContainer").innerHTML="No data available";
+        document.getElementById("pageInfo").innerText="";
+        return;
+    }
+
+    let html="<table><tr>";
+    Object.keys(data[0]).forEach(k=> html+=`<th>${k}</th>`);
+    html+="</tr>";
+
+    data.forEach(row=>{
+        html+="<tr>";
+        Object.values(row).forEach(v=> html+=`<td>${v ?? ""}</td>`);
+        html+="</tr>";
+    });
+
+    html+="</table>";
+
+    document.getElementById("tableContainer").innerHTML=html;
+    document.getElementById("pageInfo").innerText =
+        `Page ${currentPage} of ${totalPages} | Total Rows: ${total_rows}`;
+}
+
+async function loadPage(page){
+    if(!currentFilePath) return;
+
+    const res = await fetch(
+        `/get_page?file_path=${encodeURIComponent(currentFilePath)}&page=${page}&page_size=${rowsPerPage}`
+    );
+
+    const data = await res.json();
+
+    if(data.error){
+        showMessage(data.error,"error");
+        return;
+    }
+
+    currentPage = data.page;
+    totalPages = data.total_pages;
+
+    renderTable(data.data, data.total_rows);
+}
+
+async function uploadFile(){
+    const fileInput=document.getElementById("fileInput");
+    if(!fileInput.files.length){
+        showMessage("Select a file first","error");
+        return;
+    }
+
+    const formData=new FormData();
+    formData.append("file",fileInput.files[0]);
+
+    const res = await fetch("/upload",{method:"POST",body:formData});
+    const data = await res.json();
+
+    if(data.error){
+        showMessage(data.error,"error");
+        return;
+    }
+
+    currentFilePath = data.file_path;
+    currentPage = 1;
+
+    await loadPage(1);
+
+    document.getElementById("downloadBtn").style.display="inline-block";
+    showMessage("CSV uploaded successfully!");
+}
+
+async function processData(){
+    const text=document.getElementById("textInput").value;
+
+    if(!currentFilePath){
+        showMessage("Upload a CSV first","error");
+        return;
+    }
+
+    const res = await fetch("/process",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({file_path:currentFilePath,text:text})
+    });
+
+    const data = await res.json();
+
+    if(data.error){
+        showMessage(data.error,"error");
+        return;
+    }
+
+    currentPage = 1;
+    await loadPage(1);
+
+    showMessage(
+        `Operation: ${data.predicted_operation}` +
+        (data.matched_column?` on ${data.matched_column}`:"")
+    );
+}
+
+function nextPage(){
+    if(currentPage < totalPages){
+        loadPage(currentPage + 1);
+    }
+}
+
+function prevPage(){
+    if(currentPage > 1){
+        loadPage(currentPage - 1);
+    }
+}
+
+function downloadFile(){
+    if(!currentFilePath){
+        showMessage("No file to download","error");
+        return;
+    }
+    window.location.href=`/download?file_path=${currentFilePath}`;
+}
+
+async function updateInfo(){
+    if(!currentFilePath) return;
+
+    const res = await fetch(`/get_info?file_path=${encodeURIComponent(currentFilePath)}`);
+    const data = await res.json();
+
+    if(data.error) return;
+
+    let infoText = `Rows: ${data.rows}\nColumns: ${data.columns}\n\n`;
+    infoText += "Column Names:\n" + data.column_names.join(", ") + "\n\n";
+    infoText += "Data Types:\n";
+
+    for(let [col,dtype] of Object.entries(data.dtypes)){
+        infoText += `${col}: ${dtype}\n`;
+    }
+
+    infoText += "\nMissing Values:\n";
+    for(let [col,val] of Object.entries(data.missing_values)){
+        infoText += `${col}: ${val}\n`;
+    }
+
+    document.getElementById("infoContent").innerText = infoText;
+}
+
+</script>
+
+</body>
+</html>
+
