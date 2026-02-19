@@ -50,9 +50,9 @@ AI-Pandas/
 
 - Python 3.9+
 - Trained model files inside the `models/` folder:
-  - `tfidf_vectorizer.pkl`
-  - `logistic_classifier.pkl`
+  - `intent_lstm_model.keras`
   - `label_encoder.pkl`
+  - `tokenizer.pkll`
 
 ⚠️ If these model files are missing, the application will fail at startup.
 

@@ -3,6 +3,440 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanSight AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:linear-gradient(135deg,#0f172a,#0b1120);
+    color:#e2e8f0;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:40px 30px;
+}
+
+/* Header */
+.header{
+    margin-bottom:40px;
+}
+.header h1{
+    font-size:30px;
+    font-weight:700;
+}
+.header span{color:#38bdf8;}
+
+/* Upload */
+.upload-card{
+    background:#111827;
+    padding:50px;
+    border-radius:16px;
+    text-align:center;
+    border:1px solid #1f2937;
+    margin-bottom:35px;
+}
+.upload-card.hidden{display:none;}
+.upload-icon{
+    font-size:42px;
+    margin-bottom:15px;
+    color:#38bdf8;
+}
+.upload-btn{
+    background:#0ea5e9;
+    padding:12px 26px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:500;
+    border:none;
+    color:white;
+}
+.upload-btn:hover{background:#0284c7;}
+.upload-card input{display:none;}
+
+/* Stats */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:25px;
+    margin-bottom:30px;
+}
+.stat-card{
+    background:#111827;
+    padding:22px;
+    border-radius:14px;
+    border:1px solid #1f2937;
+}
+.stat-card h3{
+    font-size:14px;
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+.stat-card p{
+    font-size:24px;
+    font-weight:600;
+}
+
+/* Tabs */
+.tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+.tab{
+    padding:10px 18px;
+    border-radius:8px;
+    background:#1f2937;
+    cursor:pointer;
+    font-size:14px;
+}
+.tab.active{
+    background:#0ea5e9;
+}
+
+/* Cards */
+.card{
+    background:#111827;
+    border-radius:14px;
+    padding:25px;
+    border:1px solid #1f2937;
+}
+
+.table-wrapper{
+    overflow:auto;
+    max-height:450px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+}
+th{
+    background:#1e293b;
+    position:sticky;
+    top:0;
+}
+th, td{
+    padding:10px;
+    border-bottom:1px solid #1f2937;
+    text-align:center;
+    vertical-align:middle;
+}
+tr:hover{background:#1e293b;}
+
+.hidden-tab{display:none;}
+
+/* Layout */
+.main-grid{
+    display:grid;
+    grid-template-columns:3fr 1.3fr;
+    gap:30px;
+}
+
+/* Panel */
+.panel{
+    background:#111827;
+    padding:25px;
+    border-radius:14px;
+    border:1px solid #1f2937;
+}
+.panel h2{
+    margin-bottom:18px;
+    font-size:18px;
+}
+textarea{
+    width:100%;
+    height:130px;
+    background:#0f172a;
+    border:1px solid #1f2937;
+    border-radius:10px;
+    padding:12px;
+    color:white;
+    resize:none;
+    margin-bottom:18px;
+    font-size:14px;
+}
+button{
+    padding:11px 16px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    width:100%;
+    font-weight:500;
+}
+.clean-btn{
+    background:#22c55e;
+    color:white;
+}
+.clean-btn:hover{background:#16a34a;}
+
+.download-btn{
+    background:#3b82f6;
+    color:white;
+    margin-top:12px;
+    display:none;
+}
+.download-btn:hover{background:#2563eb;}
+
+.alert{
+    margin-top:18px;
+    padding:10px;
+    border-radius:8px;
+    display:none;
+}
+.success{background:#14532d;}
+.error{background:#7f1d1d;}
+
+.pagination{
+    margin-top:20px;
+    display:flex;
+    justify-content:space-between;
+}
+.pagination button{
+    background:#334155;
+    width:auto;
+}
+.pagination button:hover{background:#475569;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+    <h1>Clean<span>Sight AI</span></h1>
+</div>
+
+<!-- Upload -->
+<div class="upload-card" id="uploadCard">
+    <div class="upload-icon">⬆</div>
+    <label class="upload-btn">
+        Upload CSV File
+        <input type="file" id="fileInput">
+    </label>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+    <div class="stat-card">
+        <h3>Total Rows</h3>
+        <p id="statRows">-</p>
+    </div>
+    <div class="stat-card">
+        <h3>Total Columns</h3>
+        <p id="statCols">-</p>
+    </div>
+    <div class="stat-card">
+        <h3>Total Missing Values</h3>
+        <p id="statMissing">-</p>
+    </div>
+</div>
+
+<div class="main-grid">
+
+    <div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('dataTab')">Data Table</div>
+            <div class="tab" onclick="switchTab('detailsTab')">Dataset Details</div>
+        </div>
+
+        <!-- Data Table -->
+        <div id="dataTab" class="card">
+            <div class="table-wrapper" id="tableContainer"></div>
+            <div class="pagination">
+                <button onclick="prevPage()">Previous</button>
+                <button onclick="nextPage()">Next</button>
+            </div>
+        </div>
+
+        <!-- Dataset Details -->
+        <div id="detailsTab" class="card hidden-tab">
+            <div class="table-wrapper">
+                <table id="infoTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cleaning Panel -->
+    <div class="panel">
+        <h2>AI Cleaning Command</h2>
+        <textarea id="textInput" placeholder="Example: remove duplicates, normalize salary..."></textarea>
+        <button class="clean-btn" onclick="processData()">Run Cleaning</button>
+        <button class="download-btn" id="downloadBtn" onclick="downloadFile()">Download Cleaned CSV</button>
+        <div id="message" class="alert"></div>
+    </div>
+
+</div>
+</div>
+
+<script>
+let currentFilePath="";
+let currentPage=1;
+let totalPages=1;
+const rowsPerPage=5;
+
+document.getElementById("fileInput").addEventListener("change",uploadFile);
+
+function switchTab(tabId){
+    document.getElementById("dataTab").classList.add("hidden-tab");
+    document.getElementById("detailsTab").classList.add("hidden-tab");
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+
+    document.getElementById(tabId).classList.remove("hidden-tab");
+    event.target.classList.add("active");
+}
+
+function showMessage(text,type="success"){
+    const msg=document.getElementById("message");
+    msg.className="alert "+type;
+    msg.innerText=text;
+    msg.style.display="block";
+    setTimeout(()=>msg.style.display="none",4000);
+}
+
+async function uploadFile(){
+    const file=document.getElementById("fileInput").files[0];
+    if(!file)return;
+
+    const formData=new FormData();
+    formData.append("file",file);
+
+    const res=await fetch("/upload",{method:"POST",body:formData});
+    const data=await res.json();
+    if(data.error){showMessage(data.error,"error");return;}
+
+    currentFilePath=data.file_path;
+    document.getElementById("uploadCard").classList.add("hidden");
+    document.getElementById("downloadBtn").style.display="block";
+
+    await loadPage(1);
+    await updateInfo();
+    showMessage("File uploaded successfully!");
+}
+
+async function loadPage(page){
+    const res=await fetch(`/get_page?file_path=${encodeURIComponent(currentFilePath)}&page=${page}&page_size=${rowsPerPage}`);
+    const data=await res.json();
+    if(data.error)return;
+
+    currentPage=data.page;
+    totalPages=data.total_pages;
+    renderTable(data.data);
+}
+
+function renderTable(data){
+    if(!data.length){document.getElementById("tableContainer").innerHTML="No Data";return;}
+    let html="<table><tr>";
+    Object.keys(data[0]).forEach(k=>html+=`<th>${k}</th>`);
+    html+="</tr>";
+    data.forEach(row=>{
+        html+="<tr>";
+        Object.values(row).forEach(v=>html+=`<td>${v??""}</td>`);
+        html+="</tr>";
+    });
+    html+="</table>";
+    document.getElementById("tableContainer").innerHTML=html;
+}
+
+async function processData(){
+    const text=document.getElementById("textInput").value;
+    const res=await fetch("/process",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({file_path:currentFilePath,text:text})
+    });
+    const data=await res.json();
+    if(data.error){showMessage(data.error,"error");return;}
+    await loadPage(1);
+    await updateInfo();
+    showMessage("Operation: "+data.predicted_operation);
+}
+
+async function updateInfo(){
+    const res=await fetch(`/get_info?file_path=${encodeURIComponent(currentFilePath)}`);
+    const data=await res.json();
+    if(data.error)return;
+
+    document.getElementById("statRows").innerText=data.rows;
+    document.getElementById("statCols").innerText=data.columns;
+
+    let totalMissing=0;
+    Object.values(data.missing_values).forEach(v=>totalMissing+=v);
+    document.getElementById("statMissing").innerText=totalMissing;
+
+    let html=`<tr>
+                <th>Column Name</th>
+                <th>Data Type</th>
+                <th>Missing Values</th>
+              </tr>`;
+
+    data.column_names.forEach(col=>{
+        const dtype=data.dtypes[col]||"-";
+        const missing=data.missing_values[col]||0;
+        html+=`<tr>
+                <td>${col}</td>
+                <td>${dtype}</td>
+                <td style="color:${missing>0?'#f87171':'#34d399'}">${missing}</td>
+               </tr>`;
+    });
+
+    document.getElementById("infoTable").innerHTML=html;
+}
+
+function nextPage(){if(currentPage<totalPages)loadPage(currentPage+1);}
+function prevPage(){if(currentPage>1)loadPage(currentPage-1);}
+function downloadFile(){window.location.href=`/download?file_path=${currentFilePath}`;}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI-Pandas Data Processor</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -242,4 +676,4 @@ async function updateInfo(){
 
 </body>
 </html>
-
+ -->
