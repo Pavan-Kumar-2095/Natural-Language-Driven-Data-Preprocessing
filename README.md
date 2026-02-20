@@ -99,3 +99,17 @@ Here are some screenshots of the application in action:
 
 
 ---
+
+
+---
+
+## 🔗 LinkedIn Post
+
+I’ve shared a detailed post about **ClearData – Natural Language Driven CSV Data Cleaning API** on LinkedIn.
+
+👉 **View the LinkedIn Post:**  
+https://www.linkedin.com/feed/update/urn:li:activity:7430480763772559360/?originTrackingId=7qFVrUrHpnGqCkaTcQrHZQ%3D%3D
+
+Feel free to connect with me and share your feedback!
+
+---
