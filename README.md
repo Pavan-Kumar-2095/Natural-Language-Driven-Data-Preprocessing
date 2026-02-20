@@ -99,20 +99,3 @@ Here are some screenshots of the application in action:
 *Screenshot of the dataset information page.*
 
 ---
-
-## ⚙️ Requirements
-
-- Python 3.9+
-- Trained model files inside the `models/` folder:
-  - `intent_lstm_model.keras`
-  - `label_encoder.pkl`
-  - `tokenizer.pkl`
-
-⚠️ If these model files are missing, the application will fail at startup.
-
----
-
-## 📦 Install Dependencies
-
-```bash
-pip install fastapi uvicorn pandas numpy scikit-learn joblib rapidfuzz jinja2 python-multipart
