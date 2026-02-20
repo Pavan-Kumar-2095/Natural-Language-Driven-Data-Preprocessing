@@ -90,12 +90,12 @@ http://127.0.0.1:8000
 Here are some screenshots of the application in action:
 
 ![Screenshot 1](Images/Screenshot_1.png)
-*Screenshot showing the data preview feature.*
+
 
 ![Screenshot 2](Images/Screenshot_2.png)
-*Screenshot showing the data cleaning options.*
+
 
 ![Screenshot 3](Images/Screenshot_3.png)
-*Screenshot of the dataset information page.*
+
 
 ---
