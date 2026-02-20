@@ -1,4 +1,4 @@
-# 🤖 AI-Pandas  
+# 🤖 ClearData  
 Natural Language Driven CSV Data Cleaning API using FastAPI + Machine Learning
 
 AI-Pandas allows users to upload a CSV file and perform data preprocessing operations using natural language commands  
