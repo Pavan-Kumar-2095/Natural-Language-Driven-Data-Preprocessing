@@ -9,7 +9,7 @@ AI-Pandas allows users to upload a CSV file and perform data preprocessing opera
 ## 🚀 Features
 
 - 📂 Upload CSV files
-- 🧠 NLP-based operation detection (TF-IDF + Logistic Regression)
+- 🧠 NLP-based operation detection 
 - 🧹 Data Cleaning Operations:
   - Remove duplicate rows
   - Fill missing values (mean / median / zero)
