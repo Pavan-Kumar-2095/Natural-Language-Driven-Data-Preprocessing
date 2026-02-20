@@ -28,7 +28,7 @@ ClearData  allows users to upload a CSV file and perform data preprocessing oper
 ## 📁 Project Structure
 
 ```
-AI-Pandas/
+ClearData/
 │
 ├── main.py
 ├── models/
