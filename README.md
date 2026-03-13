@@ -4,6 +4,7 @@ Natural Language Driven CSV Data Cleaning API using FastAPI + Machine Learning
 ClearData  allows users to upload a CSV file and perform data preprocessing operations using natural language commands  
 (e.g., “fill missing values with mean”, “normalize salary column”, “remove outliers from age”).
 
+![Screenshot 1](Images/Screenshot_1.png)
 ---
 
 ## 🚀 Features
@@ -21,7 +22,7 @@ ClearData  allows users to upload a CSV file and perform data preprocessing oper
   - Remove outliers (IQR method)
 - 📊 Pagination support for previewing data
 - 📥 Download processed CSV
-- 📈 Dataset information endpoint
+- 📈Retrieve dataset summary, description, and correlation matrix
 
 ---
 
@@ -89,13 +90,16 @@ http://127.0.0.1:8000
 
 Here are some screenshots of the application in action:
 
-![Screenshot 1](Images/Screenshot_1.png)
-
-
-![Screenshot 2](Images/Screenshot_2.png)
-
-
 ![Screenshot 3](Images/Screenshot_3.png)
+
+
+![Screenshot 4](Images/Screenshot_4.png)
+
+
+![Screenshot 5](Images/Screenshot_5.png)
+
+
+![Screenshot 6](Images/Screenshot_6.png)
 
 
 ---
