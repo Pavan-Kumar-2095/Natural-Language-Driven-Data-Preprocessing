@@ -33,9 +33,9 @@ ClearData/
 │
 ├── main.py
 ├── models/
-│   ├── tfidf_vectorizer.pkl
-│   ├── logistic_classifier.pkl
-│   └── label_encoder.pkl
+│   ├── tokenizer.pkll
+│   ├── label_encoder.pkl
+│   └── intent_lstm_model.keras
 │
 ├── templates/
 │   └── index.html
